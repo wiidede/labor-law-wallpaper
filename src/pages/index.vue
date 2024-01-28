@@ -46,12 +46,16 @@ function setIndex(lawIndex: number, articleIndex: number) {
   </div>
 
   <div class="p4">
-    <div class="flex">
-      <Button variant="outline" size="icon" :class="isActive ? 'i-carbon-pause' : 'i-carbon-play'" @click="isActive ? pause() : resume()" />
-      <Button variant="outline" size="icon" class="i-carbon-skip-forward" @click="handleSkip()" />
+    <div class="flex gap4">
+      <Button variant="outline" size="icon" @click="isActive ? pause() : resume()">
+        <div :class="isActive ? 'i-carbon-pause' : 'i-carbon-play'" />
+      </Button>
+      <Button variant="outline" size="icon" @click="handleSkip()">
+        <div class="i-carbon-skip-forward" />
+      </Button>
     </div>
     <div v-for="law, idx in laws" :key="idx">
-      <h2 class="text-lg" :title="law.info">
+      <h2 class="my2 text-lg" :title="law.info">
         {{ law.name }}
         <a v-if="law.link" :href="law.link" target="_blank"><span class="ml-4 text-0.67em underline op-50">原文</span></a>
       </h2>
