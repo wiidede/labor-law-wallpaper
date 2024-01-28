@@ -17,6 +17,12 @@ function handleSkip() {
   resume()
   randomNextLaw()
 }
+
+function setIndex(lawIndex: number, articleIndex: number) {
+  resume()
+  currentLawIndex.value = lawIndex
+  currentArticleIndex.value = articleIndex
+}
 </script>
 
 <template>
@@ -41,8 +47,8 @@ function handleSkip() {
 
   <div class="p4">
     <div class="flex">
-      <div class="icon-btn" :class="isActive ? 'i-carbon-pause' : 'i-carbon-play'" @click="isActive ? pause() : resume()" />
-      <div class="i-carbon-skip-forward icon-btn" @click="handleSkip()" />
+      <Button variant="outline" size="icon" :class="isActive ? 'i-carbon-pause' : 'i-carbon-play'" @click="isActive ? pause() : resume()" />
+      <Button variant="outline" size="icon" class="i-carbon-skip-forward" @click="handleSkip()" />
     </div>
     <div v-for="law, idx in laws" :key="idx">
       <h2 class="text-lg" :title="law.info">
@@ -51,9 +57,15 @@ function handleSkip() {
       </h2>
       <div class="flex flex-wrap gap2">
         <template v-for="article, subIdx in law.articles" :key="subIdx">
-          <button class="btn" :title="article.content" @click="currentArticleIndex = subIdx; currentLawIndex = idx">
+          <Button
+            :variant="currentLawIndex === idx && currentArticleIndex === subIdx ? 'default' : 'outline'"
+            size="sm"
+            :title="article.content"
+            :disabled="currentLawIndex === idx && currentArticleIndex === subIdx"
+            @click="setIndex(idx, subIdx)"
+          >
             {{ subIdx + 1 }}
-          </button>
+          </Button>
         </template>
       </div>
     </div>

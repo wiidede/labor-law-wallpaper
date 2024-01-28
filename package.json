@@ -16,11 +16,17 @@
     "sizecheck": "npx vite-bundle-visualizer"
   },
   "dependencies": {
+    "@radix-ui/react-slot": "^1.0.2",
     "@unhead/vue": "^1.8.9",
     "@unocss/reset": "^0.58.1",
     "@vueuse/core": "^10.7.0",
     "@vueuse/head": "^2.0.0",
+    "class-variance-authority": "^0.7.0",
+    "clsx": "^2.1.0",
+    "lucide-react": "^0.316.0",
     "nprogress": "^0.2.0",
+    "radix-vue": "^1.3.2",
+    "tailwind-merge": "^2.2.1",
     "vue": "^3.3.13",
     "vue-router": "^4.2.5"
   },
