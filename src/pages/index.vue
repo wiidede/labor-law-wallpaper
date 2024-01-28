@@ -14,12 +14,12 @@ async function randomNextLaw() {
 const { pause, resume, isActive } = useIntervalFn(() => randomNextLaw(), 6000)
 
 function handleSkip() {
-  resume()
+  isActive.value && resume()
   randomNextLaw()
 }
 
 function setIndex(lawIndex: number, articleIndex: number) {
-  resume()
+  isActive.value && resume()
   currentLawIndex.value = lawIndex
   currentArticleIndex.value = articleIndex
 }
