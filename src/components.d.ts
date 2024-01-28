@@ -10,8 +10,12 @@ declare module 'vue' {
     README: typeof import('./components/README.md')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
+    TheButton: typeof import('./components/TheButton.vue')['default']
+    TheCheckbox: typeof import('./components/TheCheckbox.vue')['default']
     TheCounter: typeof import('./components/TheCounter.vue')['default']
     TheFooter: typeof import('./components/TheFooter.vue')['default']
     TheInput: typeof import('./components/TheInput.vue')['default']
+    TheRange: typeof import('./components/TheRange.vue')['default']
+    WithLabel: typeof import('./components/WithLabel.vue')['default']
   }
 }
