@@ -45,7 +45,7 @@ const laws = Object.entries(lawsRaw).map<Law>(([name, raw]) => {
 
   return {
     info: articles.shift()?.content || '',
-    name: name.replace('/assets/laws/', '').replace('.txt', ''),
+    name: name.replace(/^\/assets\/laws\/\d\d\./g, '').replace('.txt', ''),
     articles,
     link,
   }
