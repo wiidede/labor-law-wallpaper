@@ -6,8 +6,6 @@ import Layouts from 'vite-plugin-vue-layouts'
 import Components from 'unplugin-vue-components/vite'
 import AutoImport from 'unplugin-auto-import/vite'
 import Markdown from 'unplugin-vue-markdown/vite'
-import VueMacros from 'unplugin-vue-macros/vite'
-import VueI18n from '@intlify/unplugin-vue-i18n/vite'
 import { VitePWA } from 'vite-plugin-pwa'
 import VueDevTools from 'vite-plugin-vue-devtools'
 import LinkAttributes from 'markdown-it-link-attributes'
@@ -25,12 +23,8 @@ export default defineConfig({
   },
 
   plugins: [
-    VueMacros({
-      plugins: {
-        vue: Vue({
-          include: [/\.vue$/, /\.md$/],
-        }),
-      },
+    Vue({
+      include: [/\.vue$/, /\.md$/],
     }),
 
     // https://github.com/posva/unplugin-vue-router
@@ -46,7 +40,6 @@ export default defineConfig({
     AutoImport({
       imports: [
         'vue',
-        'vue-i18n',
         '@vueuse/head',
         '@vueuse/core',
         VueRouterAutoImports,
@@ -128,14 +121,6 @@ export default defineConfig({
       },
     }),
 
-    // https://github.com/intlify/bundle-tools/tree/main/packages/unplugin-vue-i18n
-    VueI18n({
-      runtimeOnly: true,
-      compositionOnly: true,
-      fullInstall: true,
-      include: [path.resolve(__dirname, 'locales/**')],
-    }),
-
     // https://github.com/feat-agency/vite-plugin-webfont-dl
     WebfontDownload(),
 
@@ -163,6 +148,6 @@ export default defineConfig({
 
   ssr: {
     // TODO: workaround until they support native ESM
-    noExternal: ['workbox-window', /vue-i18n/],
+    noExternal: ['workbox-window'],
   },
 })
