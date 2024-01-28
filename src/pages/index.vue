@@ -12,6 +12,11 @@ async function randomNextLaw() {
 }
 
 const { pause, resume, isActive } = useIntervalFn(() => randomNextLaw(), 6000)
+
+function handleSkip() {
+  resume()
+  randomNextLaw()
+}
 </script>
 
 <template>
@@ -37,7 +42,7 @@ const { pause, resume, isActive } = useIntervalFn(() => randomNextLaw(), 6000)
   <div class="p4">
     <div class="flex">
       <div class="icon-btn" :class="isActive ? 'i-carbon-pause' : 'i-carbon-play'" @click="isActive ? pause() : resume()" />
-      <div class="i-carbon-skip-forward icon-btn" @click="randomNextLaw" />
+      <div class="i-carbon-skip-forward icon-btn" @click="handleSkip()" />
     </div>
     <div v-for="law, idx in laws" :key="idx">
       <h2 class="text-lg" :title="law.info">
