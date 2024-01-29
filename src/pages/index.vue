@@ -63,6 +63,8 @@ const bottomMarginValue = useElementToArray(usePixelToNumber(bottomMargin))
 
 const bottomDoubleWeight = useStorage('law-bottom-double-weight', true)
 
+const nameWrap = useStorage('law-name-wrap', false)
+
 function resetMargin() {
   topMargin.value = '0px'
   centerTopMargin.value = '0px'
@@ -165,8 +167,8 @@ function getSpan(length: number, size: number, base: number) {
   >
     <img class="mt-[--law-top-margin] aspect-square w-[--law-guohui-size]" src="/assets/images/guohui.png" alt="国徽">
     <h1 class="mb-[--law-center-bottom-margin] mt-[--law-center-top-margin] text-center font-size-[--law-name-size] font-bold">
-      <template v-if="currentLaw?.name.startsWith('中华人民共和国')">
-        <span>中华人民共和国</span><div class="h-4 md:hidden" /><span>{{ currentLaw?.name.slice(7) }}</span>
+      <template v-if="currentLaw?.name.startsWith('中华人民共和国') && nameWrap">
+        <span>中华人民共和国</span><div /><span>{{ currentLaw?.name.slice(7) }}</span>
       </template>
       <template v-else>
         <span>{{ currentLaw?.name }}</span>
@@ -207,7 +209,7 @@ function getSpan(length: number, size: number, base: number) {
               </CardHeader>
               <CardContent>
                 <form>
-                  <div class="grid w-full items-center gap-4">
+                  <div class="grid w-full items-center gap-6">
                     <div class="flex flex-col gap-2">
                       <div class="flex items-center justify-between">
                         <Label for="interval">间隔时间</Label>
@@ -232,7 +234,7 @@ function getSpan(length: number, size: number, base: number) {
               </CardHeader>
               <CardContent>
                 <form>
-                  <div class="grid w-full items-center gap-4">
+                  <div class="grid w-full items-center gap-6">
                     <div class="flex flex-col gap-2">
                       <div class="flex items-center justify-between">
                         <Label for="guohui-size">国徽</Label>
@@ -241,6 +243,8 @@ function getSpan(length: number, size: number, base: number) {
                         </span>
                       </div>
                       <Slider id="guohui-size" v-model="guohuiSizeValue" class="my2" :min="10" :max="1024" />
+                    </div>
+                    <div class="flex flex-col gap-2">
                       <div class="flex items-center justify-between">
                         <Label for="name-size">名称</Label>
                         <span class="text-right text-sm text-muted-foreground">
@@ -248,6 +252,8 @@ function getSpan(length: number, size: number, base: number) {
                         </span>
                       </div>
                       <Slider id="name-size" v-model="nameSizeValue" class="my2" :min="10" :max="128" />
+                    </div>
+                    <div class="flex flex-col gap-2">
                       <div class="flex items-center justify-between">
                         <Label for="article-size">条文</Label>
                         <span class="text-right text-sm text-muted-foreground">
@@ -271,7 +277,7 @@ function getSpan(length: number, size: number, base: number) {
               </CardHeader>
               <CardContent>
                 <form>
-                  <div class="grid w-full items-center gap-4">
+                  <div class="grid w-full items-center gap-6">
                     <div class="flex flex-col gap-2">
                       <div class="flex items-center justify-between">
                         <Label for="top-margin">顶部</Label>
@@ -308,7 +314,7 @@ function getSpan(length: number, size: number, base: number) {
                       </div>
                       <Slider id="bottom-margin" v-model="bottomMarginValue" class="my2" :min="0" :max="120" />
                     </div>
-                    <div class="flex flex-col gap-2">
+                    <div class="border rounded-md p-4">
                       <div class="flex items-center justify-between">
                         <Label for="bottom-double-weight">底部边距自动布局两倍权重</Label>
                         <Switch id="bottom-double-weight" v-model:checked="bottomDoubleWeight" />
@@ -337,6 +343,23 @@ function getSpan(length: number, size: number, base: number) {
                     <div class="flex flex-col gap-2">
                       <Label for="container-color">文字</Label>
                       <input id="container-color" v-model="containerColor" type="color">
+                    </div>
+                  </div>
+                </form>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader>
+                <CardTitle>布局</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <form>
+                  <div class="grid w-full items-center gap-6">
+                    <div class="border rounded-md p-4">
+                      <div class="flex items-center justify-between">
+                        <Label for="name-wrap">名称换行</Label>
+                        <Switch id="name-wrap" v-model:checked="nameWrap" />
+                      </div>
                     </div>
                   </div>
                 </form>
