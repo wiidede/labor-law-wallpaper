@@ -1,6 +1,78 @@
 <script setup lang="ts">
 const laws = useLaws()
 
+const lawRef = ref<HTMLDivElement>()
+
+const styleConfigVisible = ref(false)
+
+const intervalTime = useLocalStorage('law-interval-time', 6)
+const intervalTimeMs = computed(() => intervalTime.value * 1000)
+const intervalTimeModel = useElementToArray(intervalTimeMs)
+
+const guohuiSize = useStorage('law-guohui-size', useCssVar('--law-guohui-size'))
+if (!guohuiSize.value)
+  guohuiSize.value = '240px'
+const guohuiSizeValue = useElementToArray(usePixelToNumber(guohuiSize))
+
+const nameSize = useStorage('law-name-size', useCssVar('--law-name-size'))
+if (!nameSize.value)
+  nameSize.value = '60px'
+const nameSizeValue = useElementToArray(usePixelToNumber(nameSize))
+
+const articleSize = useStorage('law-article-size', useCssVar('--law-article-size'))
+if (!articleSize.value)
+  articleSize.value = '20px'
+const articleSizeValue = useElementToArray(usePixelToNumber(articleSize))
+
+function resetSize() {
+  guohuiSize.value = '240px'
+  nameSize.value = '60px'
+  articleSize.value = '20px'
+}
+
+const containerBg = useStorage('law-container-bg', useCssVar('--law-container-bg'))
+if (!containerBg.value)
+  containerBg.value = '#DB3832'
+
+const containerColor = useStorage('law-container-color', useCssVar('--law-container-color'))
+if (!containerColor.value)
+  containerColor.value = '#FFFF54'
+
+function resetColor() {
+  containerBg.value = '#DB3832'
+  containerColor.value = '#FFFF54'
+}
+
+const topMargin = useStorage('law-top-margin', useCssVar('--law-top-margin'))
+if (!topMargin.value)
+  topMargin.value = '0px'
+const topMarginValue = useElementToArray(usePixelToNumber(topMargin))
+
+const centerTopMargin = useStorage('law-center-top-margin', useCssVar('--law-center-top-margin'))
+if (!centerTopMargin.value)
+  centerTopMargin.value = '0px'
+const centerTopMarginValue = useElementToArray(usePixelToNumber(centerTopMargin))
+
+const centerBottomMargin = useStorage('law-center-bottom-margin', useCssVar('--law-center-bottom-margin'))
+if (!centerBottomMargin.value)
+  centerBottomMargin.value = '0px'
+const centerBottomMarginValue = useElementToArray(usePixelToNumber(centerBottomMargin))
+
+const bottomMargin = useStorage('law-bottom-margin', useCssVar('--law-bottom-margin'))
+if (!bottomMargin.value)
+  bottomMargin.value = '0px'
+const bottomMarginValue = useElementToArray(usePixelToNumber(bottomMargin))
+
+const bottomDoubleWeight = useStorage('law-bottom-double-weight', true)
+
+function resetMargin() {
+  topMargin.value = '0px'
+  centerTopMargin.value = '0px'
+  centerBottomMargin.value = '0px'
+  bottomMargin.value = '0px'
+  bottomDoubleWeight.value = true
+}
+
 const lawVisible = ref(false)
 const lawsVisible = ref<string[]>([])
 
@@ -75,7 +147,7 @@ async function nextLaw() {
   }
 }
 
-const { pause, resume, isActive } = useIntervalFn(() => nextLaw(), 6000)
+const { pause, resume, isActive } = useIntervalFn(() => nextLaw(), intervalTimeMs)
 
 function handleSkip() {
   isActive.value && resume()
@@ -90,9 +162,12 @@ function setIndex(lawIndex: number, articleIndex: number) {
 </script>
 
 <template>
-  <div class="screen-size law-container flex flex-col items-center justify-around bg-#DB3832 text-#FFFF54">
-    <img class="aspect-square w-67" src="/assets/images/guohui.png" alt="国徽">
-    <h1 class="text-center text-5xl font-bold md:text-7xl">
+  <div
+    ref="lawRef"
+    class="screen-size law-container flex flex-col items-center justify-around bg-[--law-container-bg] text-[--law-container-color]"
+  >
+    <img class="mt-[--law-top-margin] aspect-square w-[--law-guohui-size]" src="/assets/images/guohui.png" alt="国徽">
+    <h1 class="mb-[--law-center-bottom-margin] mt-[--law-center-top-margin] text-center font-size-[--law-name-size] font-bold">
       <template v-if="currentLaw?.name.startsWith('中华人民共和国')">
         <span>中华人民共和国</span><div class="h-4 md:hidden" /><span>{{ currentLaw?.name.slice(7) }}</span>
       </template>
@@ -100,13 +175,13 @@ function setIndex(lawIndex: number, articleIndex: number) {
         <span>{{ currentLaw?.name }}</span>
       </template>
     </h1>
-    <div class="flex flex-col px-2ch text-5 md:flex-row md:gap8 md:px-4ch xl:px-8ch">
+    <div class="mb-[--law-bottom-margin] flex flex-col px-2ch font-size-[--law-article-size] md:flex-row md:gap8 md:px-4ch xl:px-8ch">
       <span class="flex-[0_0_auto] font-bold">{{ currentArticle?.article }}</span>
       <p class="ws-pre-wrap">
         {{ currentArticle?.content }}
       </p>
     </div>
-    <div />
+    <div v-if="bottomDoubleWeight" />
   </div>
 
   <div class="flex flex-col gap4 p4">
@@ -122,10 +197,164 @@ function setIndex(lawIndex: number, articleIndex: number) {
       </Button>
     </div>
 
+    <Collapsible v-model:open="styleConfigVisible">
+      <CollapsibleTrigger>
+        <div class="flex items-center gap2 text-xl">
+          页面配置
+          <div class="i-carbon-chevron-right inline-block transition-transform duration-200" :class="{ 'rotate-90': styleConfigVisible }" />
+        </div>
+      </CollapsibleTrigger>
+      <CollapsibleContent>
+        <div class="grid auto-rows-auto grid-cols-1 my2 gap-6 2xl:grid-cols-4 lg:grid-cols-3 sm:grid-cols-2">
+          <Card>
+            <CardHeader>
+              <CardTitle>轮播</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <form>
+                <div class="grid w-full items-center gap-4">
+                  <div class="flex flex-col gap-2">
+                    <div class="flex items-center justify-between">
+                      <Label for="interval">间隔时间</Label>
+                      <span class="text-right text-sm text-muted-foreground">
+                        {{ intervalTime }}s
+                      </span>
+                    </div>
+                    <Slider id="interval" v-model="intervalTimeModel" class="my2" :min="1" :max="120" />
+                  </div>
+                </div>
+              </form>
+            </CardContent>
+          </Card>
+          <Card class="grid-row-span-2">
+            <CardHeader>
+              <div class="flex items-center justify-between">
+                <CardTitle>大小</CardTitle>
+                <Button variant="ghost" size="sm" @click="resetSize">
+                  <div class="i-carbon-reset" />
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <form>
+                <div class="grid w-full items-center gap-4">
+                  <div class="flex flex-col gap-2">
+                    <div class="flex items-center justify-between">
+                      <Label for="guohui-size">国徽</Label>
+                      <span class="text-right text-sm text-muted-foreground">
+                        {{ guohuiSize }}
+                      </span>
+                    </div>
+                    <Slider id="guohui-size" v-model="guohuiSizeValue" class="my2" :min="10" :max="1024" />
+                    <div class="flex items-center justify-between">
+                      <Label for="name-size">名称</Label>
+                      <span class="text-right text-sm text-muted-foreground">
+                        {{ nameSize }}
+                      </span>
+                    </div>
+                    <Slider id="name-size" v-model="nameSizeValue" class="my2" :min="10" :max="128" />
+                    <div class="flex items-center justify-between">
+                      <Label for="article-size">条文</Label>
+                      <span class="text-right text-sm text-muted-foreground">
+                        {{ articleSize }}
+                      </span>
+                    </div>
+                    <Slider id="article-size" v-model="articleSizeValue" class="my2" :min="10" :max="60" />
+                  </div>
+                </div>
+              </form>
+            </CardContent>
+          </Card>
+          <Card class="grid-row-span-3">
+            <CardHeader>
+              <div class="flex items-center justify-between">
+                <CardTitle>边距</CardTitle>
+                <Button variant="ghost" size="sm" @click="resetMargin">
+                  <div class="i-carbon-reset" />
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <form>
+                <div class="grid w-full items-center gap-4">
+                  <div class="flex flex-col gap-2">
+                    <div class="flex items-center justify-between">
+                      <Label for="top-margin">顶部</Label>
+                      <span class="text-right text-sm text-muted-foreground">
+                        {{ topMargin }}
+                      </span>
+                    </div>
+                    <Slider id="top-margin" v-model="topMarginValue" class="my2" :min="0" :max="120" />
+                  </div>
+                  <div class="flex flex-col gap-2">
+                    <div class="flex items-center justify-between">
+                      <Label for="center-top-margin">中部上</Label>
+                      <span class="text-right text-sm text-muted-foreground">
+                        {{ centerTopMargin }}
+                      </span>
+                    </div>
+                    <Slider id="center-top-margin" v-model="centerTopMarginValue" class="my2" :min="0" :max="120" />
+                  </div>
+                  <div class="flex flex-col gap-2">
+                    <div class="flex items-center justify-between">
+                      <Label for="center-bottom-margin">中部下</Label>
+                      <span class="text-right text-sm text-muted-foreground">
+                        {{ centerBottomMargin }}
+                      </span>
+                    </div>
+                    <Slider id="center-bottom-margin" v-model="centerBottomMarginValue" class="my2" :min="0" :max="120" />
+                  </div>
+                  <div class="flex flex-col gap-2">
+                    <div class="flex items-center justify-between">
+                      <Label for="bottom-margin">底部</Label>
+                      <span class="text-right text-sm text-muted-foreground">
+                        {{ bottomMargin }}
+                      </span>
+                    </div>
+                    <Slider id="bottom-margin" v-model="bottomMarginValue" class="my2" :min="0" :max="120" />
+                  </div>
+                  <div class="flex flex-col gap-2">
+                    <div class="flex items-center justify-between">
+                      <Label for="bottom-double-weight">底部边距自动布局两倍权重</Label>
+                      <Switch id="bottom-double-weight" v-model:checked="bottomDoubleWeight" />
+                    </div>
+                  </div>
+                </div>
+              </form>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader>
+              <div class="flex items-center justify-between">
+                <CardTitle>颜色</CardTitle>
+                <Button variant="ghost" size="sm" @click="resetColor">
+                  <div class="i-carbon-reset" />
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <form>
+                <div class="grid grid-cols-2 w-full items-center gap-4">
+                  <div class="flex flex-col gap-2">
+                    <Label for="container-bg">背景</Label>
+                    <input id="container-bg" v-model="containerBg" type="color">
+                  </div>
+                  <div class="flex flex-col gap-2">
+                    <Label for="container-color">文字</Label>
+                    <input id="container-color" v-model="containerColor" type="color">
+                  </div>
+                </div>
+              </form>
+            </CardContent>
+          </Card>
+        </div>
+      </CollapsibleContent>
+    </Collapsible>
+
     <Collapsible v-model:open="lawVisible">
       <CollapsibleTrigger>
         <div class="flex items-center gap2 text-xl">
-          当前所有条文
+          当前条文
           <div class="i-carbon-chevron-right inline-block transition-transform duration-200" :class="{ 'rotate-90': lawVisible }" />
         </div>
       </CollapsibleTrigger>
