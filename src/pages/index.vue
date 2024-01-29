@@ -15,7 +15,7 @@ const lawSelectionStorage = useLocalStorage('law-selection', defaultLawStorage)
 const storageKeys = Object.keys(lawSelectionStorage.value)
 laws.forEach((law) => {
   if (!storageKeys.includes(law.name))
-    lawSelectionStorage.value[law.name] = defaultLaw[law.name] || '0'.repeat(law.articles.length)
+    lawSelectionStorage.value[law.name] = '0'.repeat(law.articles.length)
 })
 const lawSelection = computed({
   get: () => Object.fromEntries(Object.entries(lawSelectionStorage.value).map(([key, value]) => [key, value.split('').map(v => v === '1')])),
