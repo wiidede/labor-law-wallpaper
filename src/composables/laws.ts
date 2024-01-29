@@ -23,14 +23,14 @@ const laws = Object.entries(lawsRaw).map<Law>(([name, raw]) => {
     const match = regex.exec(content)
 
     if (!match) {
-      articles.push({ chapter, article, content: content.substring(prevIndex) })
+      articles.push({ chapter, article, content: content.substring(prevIndex), index: 0 })
       break
     }
 
     if (skip)
       skip = false
     else
-      articles.push({ chapter, article, content: content.substring(prevIndex, match.index).replaceAll(/\n+/gm, '\n').replaceAll(/\u3000/g, '') })
+      articles.push({ chapter, article, content: content.substring(prevIndex, match.index).replaceAll(/\n+/gm, '\n').replaceAll(/\u3000/g, ''), index: 0 })
 
     prevIndex = regex.lastIndex
 
@@ -43,8 +43,14 @@ const laws = Object.entries(lawsRaw).map<Law>(([name, raw]) => {
     }
   }
 
+  const info = articles.shift()?.content || ''
+
+  articles.forEach((article, index) => {
+    article.index = index
+  })
+
   return {
-    info: articles.shift()?.content || '',
+    info,
     name: name.replace(/^\/assets\/laws\/\d\d\./g, '').replace('.txt', ''),
     articles,
     link,

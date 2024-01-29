@@ -16,6 +16,7 @@ export default defineConfig({
       'animate-accordion-down': 'accordion-down',
       'animate-collapsible-up': 'collapsible-up',
       'animate-collapsible-down': 'collapsible-down',
+      'grid-responsive': 'grid 2xl:grid-cols-4 lg:grid-cols-3 sm:grid-cols-2 grid-cols-1',
     },
   ],
   content: {

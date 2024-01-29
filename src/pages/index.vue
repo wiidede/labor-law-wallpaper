@@ -3,8 +3,6 @@ const laws = useLaws()
 
 const lawRef = ref<HTMLDivElement>()
 
-const styleConfigVisible = ref(false)
-
 const intervalTime = useLocalStorage('law-interval-time', 6)
 const intervalTimeMs = computed(() => intervalTime.value * 1000)
 const intervalTimeModel = useElementToArray(intervalTimeMs)
@@ -73,9 +71,6 @@ function resetMargin() {
   bottomDoubleWeight.value = true
 }
 
-const lawVisible = ref(false)
-const lawsVisible = ref<string[]>([])
-
 const defaultLaw: Record<string, string | undefined> = {
   中华人民共和国劳动法: '00010000000000000000000000000000000100000001000000000000000000000000000000000000000000000000000000000000000',
   中华人民共和国劳动合同法: '00010010000000000000000001000010001001000000000000000000000000000000000000000000000000000000000000',
@@ -93,9 +88,6 @@ const lawSelection = computed({
   get: () => Object.fromEntries(Object.entries(lawSelectionStorage.value).map(([key, value]) => [key, value.split('').map(v => v === '1')])),
   set: (value) => { lawSelectionStorage.value = Object.fromEntries(Object.entries(value).map(([key, value]) => [key, value.map(v => v ? '1' : '0').join('')])) },
 })
-
-const lawSelectionVisible = ref(false)
-const lawsSelectionVisible = ref<string[]>([])
 
 function setAllSelected(lawName: string, checked: boolean) {
   const selectionValue = lawSelection.value
@@ -159,6 +151,11 @@ function setIndex(lawIndex: number, articleIndex: number) {
   currentLawIndex.value = lawIndex
   currentArticleIndex.value = articleIndex
 }
+
+function getSpan(length: number, size: number, base: number) {
+  const span = Math.max(1 + base, Math.ceil(length / size) + base)
+  return `span ${span} / span ${span}`
+}
 </script>
 
 <template>
@@ -186,251 +183,248 @@ function setIndex(lawIndex: number, articleIndex: number) {
 
   <div class="flex flex-col gap4 p4">
     <div class="flex justify-center gap4">
-      <Button variant="outline" size="icon" @click="toggleShuffle()">
+      <Button variant="default" size="icon" @click="toggleShuffle()">
         <div :class="isShuffle ? 'i-carbon-shuffle' : 'i-carbon-sort-ascending'" />
       </Button>
-      <Button variant="outline" size="icon" @click="isActive ? pause() : resume()">
+      <Button variant="default" size="icon" @click="isActive ? pause() : resume()">
         <div :class="isActive ? 'i-carbon-pause' : 'i-carbon-play'" />
       </Button>
-      <Button variant="outline" size="icon" @click="handleSkip()">
+      <Button variant="default" size="icon" @click="handleSkip()">
         <div class="i-carbon-skip-forward" />
       </Button>
     </div>
 
-    <Collapsible v-model:open="styleConfigVisible">
-      <CollapsibleTrigger>
-        <div class="flex items-center gap2 text-xl">
-          页面配置
-          <div class="i-carbon-chevron-right inline-block transition-transform duration-200" :class="{ 'rotate-90': styleConfigVisible }" />
-        </div>
-      </CollapsibleTrigger>
-      <CollapsibleContent>
-        <div class="grid auto-rows-auto grid-cols-1 my2 gap-6 2xl:grid-cols-4 lg:grid-cols-3 sm:grid-cols-2">
-          <Card>
-            <CardHeader>
-              <CardTitle>轮播</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <form>
-                <div class="grid w-full items-center gap-4">
-                  <div class="flex flex-col gap-2">
-                    <div class="flex items-center justify-between">
-                      <Label for="interval">间隔时间</Label>
-                      <span class="text-right text-sm text-muted-foreground">
-                        {{ intervalTime }}s
-                      </span>
-                    </div>
-                    <Slider id="interval" v-model="intervalTimeModel" class="my2" :min="1" :max="120" />
-                  </div>
-                </div>
-              </form>
-            </CardContent>
-          </Card>
-          <Card class="grid-row-span-2">
-            <CardHeader>
-              <div class="flex items-center justify-between">
-                <CardTitle>大小</CardTitle>
-                <Button variant="ghost" size="sm" @click="resetSize">
-                  <div class="i-carbon-reset" />
-                </Button>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <form>
-                <div class="grid w-full items-center gap-4">
-                  <div class="flex flex-col gap-2">
-                    <div class="flex items-center justify-between">
-                      <Label for="guohui-size">国徽</Label>
-                      <span class="text-right text-sm text-muted-foreground">
-                        {{ guohuiSize }}
-                      </span>
-                    </div>
-                    <Slider id="guohui-size" v-model="guohuiSizeValue" class="my2" :min="10" :max="1024" />
-                    <div class="flex items-center justify-between">
-                      <Label for="name-size">名称</Label>
-                      <span class="text-right text-sm text-muted-foreground">
-                        {{ nameSize }}
-                      </span>
-                    </div>
-                    <Slider id="name-size" v-model="nameSizeValue" class="my2" :min="10" :max="128" />
-                    <div class="flex items-center justify-between">
-                      <Label for="article-size">条文</Label>
-                      <span class="text-right text-sm text-muted-foreground">
-                        {{ articleSize }}
-                      </span>
-                    </div>
-                    <Slider id="article-size" v-model="articleSizeValue" class="my2" :min="10" :max="60" />
-                  </div>
-                </div>
-              </form>
-            </CardContent>
-          </Card>
-          <Card class="grid-row-span-3">
-            <CardHeader>
-              <div class="flex items-center justify-between">
-                <CardTitle>边距</CardTitle>
-                <Button variant="ghost" size="sm" @click="resetMargin">
-                  <div class="i-carbon-reset" />
-                </Button>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <form>
-                <div class="grid w-full items-center gap-4">
-                  <div class="flex flex-col gap-2">
-                    <div class="flex items-center justify-between">
-                      <Label for="top-margin">顶部</Label>
-                      <span class="text-right text-sm text-muted-foreground">
-                        {{ topMargin }}
-                      </span>
-                    </div>
-                    <Slider id="top-margin" v-model="topMarginValue" class="my2" :min="0" :max="120" />
-                  </div>
-                  <div class="flex flex-col gap-2">
-                    <div class="flex items-center justify-between">
-                      <Label for="center-top-margin">中部上</Label>
-                      <span class="text-right text-sm text-muted-foreground">
-                        {{ centerTopMargin }}
-                      </span>
-                    </div>
-                    <Slider id="center-top-margin" v-model="centerTopMarginValue" class="my2" :min="0" :max="120" />
-                  </div>
-                  <div class="flex flex-col gap-2">
-                    <div class="flex items-center justify-between">
-                      <Label for="center-bottom-margin">中部下</Label>
-                      <span class="text-right text-sm text-muted-foreground">
-                        {{ centerBottomMargin }}
-                      </span>
-                    </div>
-                    <Slider id="center-bottom-margin" v-model="centerBottomMarginValue" class="my2" :min="0" :max="120" />
-                  </div>
-                  <div class="flex flex-col gap-2">
-                    <div class="flex items-center justify-between">
-                      <Label for="bottom-margin">底部</Label>
-                      <span class="text-right text-sm text-muted-foreground">
-                        {{ bottomMargin }}
-                      </span>
-                    </div>
-                    <Slider id="bottom-margin" v-model="bottomMarginValue" class="my2" :min="0" :max="120" />
-                  </div>
-                  <div class="flex flex-col gap-2">
-                    <div class="flex items-center justify-between">
-                      <Label for="bottom-double-weight">底部边距自动布局两倍权重</Label>
-                      <Switch id="bottom-double-weight" v-model:checked="bottomDoubleWeight" />
+    <Accordion type="multiple">
+      <AccordionItem value="page-config">
+        <AccordionTrigger>
+          <span class="text-2xl">页面配置</span>
+        </AccordionTrigger>
+        <AccordionContent>
+          <div class="gap-6 grid-responsive">
+            <Card>
+              <CardHeader>
+                <CardTitle>轮播</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <form>
+                  <div class="grid w-full items-center gap-4">
+                    <div class="flex flex-col gap-2">
+                      <div class="flex items-center justify-between">
+                        <Label for="interval">间隔时间</Label>
+                        <span class="text-right text-sm text-muted-foreground">
+                          {{ intervalTime }}s
+                        </span>
+                      </div>
+                      <Slider id="interval" v-model="intervalTimeModel" class="my2" :min="1" :max="120" />
                     </div>
                   </div>
-                </div>
-              </form>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader>
-              <div class="flex items-center justify-between">
-                <CardTitle>颜色</CardTitle>
-                <Button variant="ghost" size="sm" @click="resetColor">
-                  <div class="i-carbon-reset" />
-                </Button>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <form>
-                <div class="grid grid-cols-2 w-full items-center gap-4">
-                  <div class="flex flex-col gap-2">
-                    <Label for="container-bg">背景</Label>
-                    <input id="container-bg" v-model="containerBg" type="color">
-                  </div>
-                  <div class="flex flex-col gap-2">
-                    <Label for="container-color">文字</Label>
-                    <input id="container-color" v-model="containerColor" type="color">
-                  </div>
-                </div>
-              </form>
-            </CardContent>
-          </Card>
-        </div>
-      </CollapsibleContent>
-    </Collapsible>
-
-    <Collapsible v-model:open="lawVisible">
-      <CollapsibleTrigger>
-        <div class="flex items-center gap2 text-xl">
-          当前条文
-          <div class="i-carbon-chevron-right inline-block transition-transform duration-200" :class="{ 'rotate-90': lawVisible }" />
-        </div>
-      </CollapsibleTrigger>
-      <CollapsibleContent>
-        <Accordion v-model="lawsVisible" type="multiple" collapsible>
-          <template v-for="law, idx in lawFiltered" :key="idx">
-            <AccordionItem :value="String(idx)">
-              <AccordionTrigger>
-                <div class="flex items-center">
-                  <h2 class="text-lg" :title="law.info">
-                    {{ law.name }}
-                  </h2>
-                  <Button variant="link" size="sm" class="!h-fit">
-                    <a v-if="law.link" :href="law.link" target="_blank" class="ml4 inline-block" @click.stop>
-                      <div>原文</div>
-                    </a>
+                </form>
+              </CardContent>
+            </Card>
+            <Card class="grid-row-span-2">
+              <CardHeader>
+                <div class="flex items-center justify-between">
+                  <CardTitle>大小</CardTitle>
+                  <Button variant="ghost" size="sm" @click="resetSize">
+                    <div class="i-carbon-reset" />
                   </Button>
                 </div>
-              </AccordionTrigger>
-              <AccordionContent>
-                <div class="flex flex-wrap gap1">
+              </CardHeader>
+              <CardContent>
+                <form>
+                  <div class="grid w-full items-center gap-4">
+                    <div class="flex flex-col gap-2">
+                      <div class="flex items-center justify-between">
+                        <Label for="guohui-size">国徽</Label>
+                        <span class="text-right text-sm text-muted-foreground">
+                          {{ guohuiSize }}
+                        </span>
+                      </div>
+                      <Slider id="guohui-size" v-model="guohuiSizeValue" class="my2" :min="10" :max="1024" />
+                      <div class="flex items-center justify-between">
+                        <Label for="name-size">名称</Label>
+                        <span class="text-right text-sm text-muted-foreground">
+                          {{ nameSize }}
+                        </span>
+                      </div>
+                      <Slider id="name-size" v-model="nameSizeValue" class="my2" :min="10" :max="128" />
+                      <div class="flex items-center justify-between">
+                        <Label for="article-size">条文</Label>
+                        <span class="text-right text-sm text-muted-foreground">
+                          {{ articleSize }}
+                        </span>
+                      </div>
+                      <Slider id="article-size" v-model="articleSizeValue" class="my2" :min="10" :max="60" />
+                    </div>
+                  </div>
+                </form>
+              </CardContent>
+            </Card>
+            <Card class="grid-row-span-3">
+              <CardHeader>
+                <div class="flex items-center justify-between">
+                  <CardTitle>边距</CardTitle>
+                  <Button variant="ghost" size="sm" @click="resetMargin">
+                    <div class="i-carbon-reset" />
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <form>
+                  <div class="grid w-full items-center gap-4">
+                    <div class="flex flex-col gap-2">
+                      <div class="flex items-center justify-between">
+                        <Label for="top-margin">顶部</Label>
+                        <span class="text-right text-sm text-muted-foreground">
+                          {{ topMargin }}
+                        </span>
+                      </div>
+                      <Slider id="top-margin" v-model="topMarginValue" class="my2" :min="0" :max="120" />
+                    </div>
+                    <div class="flex flex-col gap-2">
+                      <div class="flex items-center justify-between">
+                        <Label for="center-top-margin">中部上</Label>
+                        <span class="text-right text-sm text-muted-foreground">
+                          {{ centerTopMargin }}
+                        </span>
+                      </div>
+                      <Slider id="center-top-margin" v-model="centerTopMarginValue" class="my2" :min="0" :max="120" />
+                    </div>
+                    <div class="flex flex-col gap-2">
+                      <div class="flex items-center justify-between">
+                        <Label for="center-bottom-margin">中部下</Label>
+                        <span class="text-right text-sm text-muted-foreground">
+                          {{ centerBottomMargin }}
+                        </span>
+                      </div>
+                      <Slider id="center-bottom-margin" v-model="centerBottomMarginValue" class="my2" :min="0" :max="120" />
+                    </div>
+                    <div class="flex flex-col gap-2">
+                      <div class="flex items-center justify-between">
+                        <Label for="bottom-margin">底部</Label>
+                        <span class="text-right text-sm text-muted-foreground">
+                          {{ bottomMargin }}
+                        </span>
+                      </div>
+                      <Slider id="bottom-margin" v-model="bottomMarginValue" class="my2" :min="0" :max="120" />
+                    </div>
+                    <div class="flex flex-col gap-2">
+                      <div class="flex items-center justify-between">
+                        <Label for="bottom-double-weight">底部边距自动布局两倍权重</Label>
+                        <Switch id="bottom-double-weight" v-model:checked="bottomDoubleWeight" />
+                      </div>
+                    </div>
+                  </div>
+                </form>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader>
+                <div class="flex items-center justify-between">
+                  <CardTitle>颜色</CardTitle>
+                  <Button variant="ghost" size="sm" @click="resetColor">
+                    <div class="i-carbon-reset" />
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <form>
+                  <div class="grid grid-cols-2 w-full items-center gap-4">
+                    <div class="flex flex-col gap-2">
+                      <Label for="container-bg">背景</Label>
+                      <input id="container-bg" v-model="containerBg" type="color">
+                    </div>
+                    <div class="flex flex-col gap-2">
+                      <Label for="container-color">文字</Label>
+                      <input id="container-color" v-model="containerColor" type="color">
+                    </div>
+                  </div>
+                </form>
+              </CardContent>
+            </Card>
+          </div>
+        </AccordionContent>
+      </AccordionItem>
+
+      <AccordionItem value="articlesFiltered">
+        <AccordionTrigger>
+          <span class="text-2xl">当前条文</span>
+        </AccordionTrigger>
+        <AccordionContent>
+          <div class="gap-6 grid-responsive">
+            <Card
+              v-for="law, idx in lawFiltered" :key="idx"
+              :style="{ 'grid-row': getSpan(law.articles.length, 10, 2) }"
+            >
+              <CardHeader>
+                <CardTitle>
+                  <div class="flex items-center">
+                    <h2 class="text-lg" :title="law.info">
+                      {{ law.name }}
+                    </h2>
+                    <Button variant="link" size="sm" class="op67 !h-fit">
+                      <a v-if="law.link" :href="law.link" target="_blank" class="inline-block">
+                        <div class="i-carbon-link" />
+                      </a>
+                    </Button>
+                  </div>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div class="flex flex-wrap">
                   <template v-for="article, subIdx in law.articles" :key="subIdx">
                     <Button
-                      :variant="currentLawIndex === idx && currentArticleIndex === subIdx ? 'default' : 'outline'"
+                      :variant="currentLawIndex === idx && currentArticleIndex === subIdx ? 'default' : 'ghost'"
                       size="sm"
                       :title="article.content"
                       :disabled="currentLawIndex === idx && currentArticleIndex === subIdx"
                       @click="setIndex(idx, subIdx)"
                     >
-                      {{ article.article }}
+                      {{ article.index }}
                     </Button>
                   </template>
                 </div>
-              </AccordionContent>
-            </AccordionItem>
-          </template>
-        </Accordion>
-      </CollapsibleContent>
-    </Collapsible>
-
-    <Collapsible v-model:open="lawSelectionVisible">
-      <CollapsibleTrigger>
-        <div class="flex items-center gap2 text-xl">
-          条文配置
-          <div class="i-carbon-chevron-right inline-block transition-transform duration-200" :class="{ 'rotate-90': lawSelectionVisible }" />
-        </div>
-      </CollapsibleTrigger>
-      <CollapsibleContent>
-        <Accordion v-model="lawsSelectionVisible" type="multiple">
-          <template v-for="law, idx in laws" :key="idx">
-            <AccordionItem :value="String(idx)">
-              <AccordionTrigger>
-                <div class="flex items-center">
-                  <Checkbox
-                    :id="`law-all-${idx}`"
-                    :checked="lawSelection[law.name].every(Boolean) ? true : lawSelection[law.name].every((c) => !c) ? false : 'indeterminate'"
-                    class="mr2"
-                    @update:checked="setAllSelected(law.name, $event)"
-                    @click.stop
-                  />
-                  <h2 class="text-lg" :title="law.info">
-                    {{ law.name }}
-                  </h2>
-                  <Button variant="link" size="sm" class="!h-fit">
-                    <a v-if="law.link" :href="law.link" target="_blank" class="ml4 inline-block" @click.stop>
-                      <div>原文</div>
-                    </a>
-                  </Button>
-                </div>
-              </AccordionTrigger>
-              <AccordionContent>
-                <div class="flex flex-wrap gap1">
+              </CardContent>
+            </Card>
+          </div>
+        </AccordionContent>
+      </AccordionItem>
+      <AccordionItem value="articles">
+        <AccordionTrigger>
+          <span class="text-2xl">条文配置</span>
+        </AccordionTrigger>
+        <AccordionContent>
+          <div class="gap-6 grid-responsive">
+            <Card
+              v-for="law, idx in laws" :key="idx"
+              :style="{ 'grid-row': getSpan(law.articles.length, 16, 2) }"
+            >
+              <CardHeader>
+                <CardTitle>
+                  <div class="flex items-center">
+                    <Checkbox
+                      :id="`law-all-${idx}`"
+                      :checked="lawSelection[law.name].every(Boolean) ? true : lawSelection[law.name].every((c) => !c) ? false : 'indeterminate'"
+                      class="mr2"
+                      @update:checked="setAllSelected(law.name, $event)"
+                    />
+                    <h2 class="text-lg" :title="law.info">
+                      {{ law.name }}
+                    </h2>
+                    <Button variant="link" size="sm" class="op67 !h-fit">
+                      <a v-if="law.link" :href="law.link" target="_blank" class="inline-block">
+                        <div class="i-carbon-link" />
+                      </a>
+                    </Button>
+                  </div>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div class="grid grid-cols-[repeat(auto-fill,minmax(50px,1fr))] gap1">
                   <div
                     v-for="article, subIdx in law.articles"
                     :key="subIdx"
-                    class="flex items-center gap-1px"
+                    class="flex items-center gap-1"
                     :title="article.content"
                   >
                     <Checkbox
@@ -446,13 +440,12 @@ function setIndex(lawIndex: number, articleIndex: number) {
                     </label>
                   </div>
                 </div>
-              </AccordionContent>
-            </AccordionItem>
-          </template>
-        </Accordion>
-      </CollapsibleContent>
-    </Collapsible>
-
+              </CardContent>
+            </Card>
+          </div>
+        </AccordionContent>
+      </AccordionItem>
+    </Accordion>
     <TheFooter />
   </div>
 </template>
