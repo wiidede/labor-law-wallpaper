@@ -1,23 +1,72 @@
 <script setup lang="ts">
 const laws = useLaws()
+
+const lawVisible = ref(false)
+const lawsVisible = ref<string[]>([])
+
+const defaultLaw: Record<string, string | undefined> = {
+  中华人民共和国劳动法: '00010000000000000000000000000000000100000001000000000000000000000000000000000000000000000000000000000000000',
+  中华人民共和国劳动合同法: '00010010000000000000000001000010001001000000000000000000000000000000000000000000000000000000000000',
+  中华人民共和国劳动争议调解仲裁法: '000001000000000000000000000000000000000000000000000000',
+}
+const defaultLawStorage = Object.fromEntries(laws.map<[string, string]>(law => [law.name, defaultLaw[law.name] || '0'.repeat(law.articles.length)]))
+
+const lawSelectionStorage = useLocalStorage('law-selection', defaultLawStorage)
+const storageKeys = Object.keys(lawSelectionStorage.value)
+laws.forEach((law) => {
+  if (!storageKeys.includes(law.name))
+    lawSelectionStorage.value[law.name] = defaultLaw[law.name] || '0'.repeat(law.articles.length)
+})
+const lawSelection = computed({
+  get: () => Object.fromEntries(Object.entries(lawSelectionStorage.value).map(([key, value]) => [key, value.split('').map(v => v === '1')])),
+  set: (value) => { lawSelectionStorage.value = Object.fromEntries(Object.entries(value).map(([key, value]) => [key, value.map(v => v ? '1' : '0').join('')])) },
+})
+
+const lawSelectionVisible = ref(false)
+const lawsSelectionVisible = ref<string[]>([])
+
+function setAllSelected(lawName: string, checked: boolean) {
+  const selectionValue = lawSelection.value
+  selectionValue[lawName] = Array.from({ length: selectionValue[lawName].length }, () => checked)
+  lawSelection.value = selectionValue
+}
+function setSelected(lawName: string, articleIndex: number, checked: boolean) {
+  const selectionValue = lawSelection.value
+  selectionValue[lawName][articleIndex] = checked
+  lawSelection.value = selectionValue
+}
+
+const lawFiltered = computed(() => {
+  const lawsCopy = structuredClone(laws)
+  return lawsCopy.filter((law) => {
+    if (lawSelection.value[law.name].every(v => !v)) {
+      return false
+    }
+    else {
+      law.articles = law.articles.filter((_, index) => lawSelection.value[law.name][index])
+      return true
+    }
+  })
+})
+
 const currentLawIndex = ref(0)
 const currentArticleIndex = ref(0)
-const currentLaw = computed(() => laws[currentLawIndex.value])
+const currentLaw = computed(() => lawFiltered.value[currentLawIndex.value])
 const currentArticle = computed(() => currentLaw.value?.articles[currentArticleIndex.value])
 
-const isShuffle = ref(false)
+const isShuffle = useLocalStorage('law-shuffle', false)
 const toggleShuffle = () => isShuffle.value = !isShuffle.value
 
 async function nextLaw() {
   if (isShuffle.value) {
-    currentLawIndex.value = Math.floor(Math.random() * laws.length)
+    currentLawIndex.value = Math.floor(Math.random() * lawFiltered.value.length)
     await nextTick()
     currentArticleIndex.value = Math.floor(Math.random() * currentLaw.value.articles.length)
   }
   else {
     const nextArticleIndex = currentArticleIndex.value + 1
     if (nextArticleIndex >= currentLaw.value.articles.length) {
-      currentLawIndex.value = (currentLawIndex.value + 1) % laws.length
+      currentLawIndex.value = (currentLawIndex.value + 1) % lawFiltered.value.length
       currentArticleIndex.value = 0
     }
     else {
@@ -37,29 +86,6 @@ function setIndex(lawIndex: number, articleIndex: number) {
   isActive.value && resume()
   currentLawIndex.value = lawIndex
   currentArticleIndex.value = articleIndex
-}
-
-const lawVisible = ref(false)
-const lawsVisible = ref<string[]>([])
-
-const lawSelectedStorage = useLocalStorage('lawSelected', Object.fromEntries(laws.map<[string, string]>(law => [law.name, '0'.repeat(law.articles.length)])))
-const lawSelected = computed({
-  get: () => Object.fromEntries(Object.entries(lawSelectedStorage.value).map(([key, value]) => [key, value.split('').map(v => v === '1')])),
-  set: (value) => { lawSelectedStorage.value = Object.fromEntries(Object.entries(value).map(([key, value]) => [key, value.map(v => v ? '1' : '0').join('')])) },
-})
-
-const lawSelectedVisible = ref(false)
-const lawsSelectedVisible = ref<string[]>([])
-
-function setAllSelected(lawName: string, checked: boolean) {
-  const selectedValue = lawSelected.value
-  selectedValue[lawName] = Array.from({ length: selectedValue[lawName].length }, () => checked)
-  lawSelected.value = selectedValue
-}
-function setSelected(lawName: string, articleIndex: number, checked: boolean) {
-  const selectedValue = lawSelected.value
-  selectedValue[lawName][articleIndex] = checked
-  lawSelected.value = selectedValue
 }
 </script>
 
@@ -105,7 +131,7 @@ function setSelected(lawName: string, articleIndex: number, checked: boolean) {
       </CollapsibleTrigger>
       <CollapsibleContent>
         <Accordion v-model="lawsVisible" type="multiple" collapsible>
-          <template v-for="law, idx in laws" :key="idx">
+          <template v-for="law, idx in lawFiltered" :key="idx">
             <AccordionItem :value="String(idx)">
               <AccordionTrigger>
                 <div class="flex items-center">
@@ -129,7 +155,7 @@ function setSelected(lawName: string, articleIndex: number, checked: boolean) {
                       :disabled="currentLawIndex === idx && currentArticleIndex === subIdx"
                       @click="setIndex(idx, subIdx)"
                     >
-                      {{ subIdx + 1 }}
+                      {{ article.article }}
                     </Button>
                   </template>
                 </div>
@@ -140,22 +166,22 @@ function setSelected(lawName: string, articleIndex: number, checked: boolean) {
       </CollapsibleContent>
     </Collapsible>
 
-    <Collapsible v-model:open="lawSelectedVisible">
+    <Collapsible v-model:open="lawSelectionVisible">
       <CollapsibleTrigger>
         <div class="flex items-center gap2 text-xl">
           条文配置
-          <div class="i-carbon-chevron-right inline-block transition-transform duration-200" :class="{ 'rotate-90': lawVisible }" />
+          <div class="i-carbon-chevron-right inline-block transition-transform duration-200" :class="{ 'rotate-90': lawSelectionVisible }" />
         </div>
       </CollapsibleTrigger>
       <CollapsibleContent>
-        <Accordion v-model="lawsSelectedVisible" type="multiple">
+        <Accordion v-model="lawsSelectionVisible" type="multiple">
           <template v-for="law, idx in laws" :key="idx">
             <AccordionItem :value="String(idx)">
               <AccordionTrigger>
                 <div class="flex items-center">
                   <Checkbox
                     :id="`law-all-${idx}`"
-                    :checked="lawSelected[law.name].every(Boolean) ? true : lawSelected[law.name].every((c) => !c) ? false : 'indeterminate'"
+                    :checked="lawSelection[law.name].every(Boolean) ? true : lawSelection[law.name].every((c) => !c) ? false : 'indeterminate'"
                     class="mr2"
                     @update:checked="setAllSelected(law.name, $event)"
                     @click.stop
@@ -180,8 +206,7 @@ function setSelected(lawName: string, articleIndex: number, checked: boolean) {
                   >
                     <Checkbox
                       :id="`law-${idx}-${subIdx}`"
-                      :checked="lawSelected[law.name][subIdx]"
-                      :disabled="currentLawIndex === idx && currentArticleIndex === subIdx"
+                      :checked="lawSelection[law.name][subIdx]"
                       @update:checked="setSelected(law.name, subIdx, $event)"
                     />
                     <label
