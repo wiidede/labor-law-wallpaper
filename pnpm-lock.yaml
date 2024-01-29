@@ -26,9 +26,9 @@ dependencies:
   clsx:
     specifier: ^2.1.0
     version: 2.1.0
-  lucide-react:
+  lucide-vue-next:
     specifier: ^0.316.0
-    version: 0.316.0(react@18.2.0)
+    version: 0.316.0(vue@3.3.13)
   nprogress:
     specifier: ^0.2.0
     version: 0.2.0
@@ -6419,12 +6419,12 @@ packages:
     engines: {node: 14 || >=16.14}
     dev: true
 
-  /lucide-react@0.316.0(react@18.2.0):
-    resolution: {integrity: sha512-dTmYX1H4IXsRfVcj/KUxworV6814ApTl7iXaS21AimK2RUEl4j4AfOmqD3VR8phe5V91m4vEJ8tCK4uT1jE5nA==}
+  /lucide-vue-next@0.316.0(vue@3.3.13):
+    resolution: {integrity: sha512-nyBA2wTJE2g3nwrl4I6LTqEw6v0hpLRcdOM7b17Mwh0nRYLJEyCx4MFPe6ifRO1GKb8lXzRncD1F4aDW/dVJzw==}
     peerDependencies:
-      react: ^16.5.1 || ^17.0.0 || ^18.0.0
+      vue: '>=3.0.1'
     dependencies:
-      react: 18.2.0
+      vue: 3.3.13(typescript@5.3.3)
     dev: false
 
   /magic-string-ast@0.3.0:

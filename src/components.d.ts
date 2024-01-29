@@ -7,16 +7,20 @@ export {}
 
 declare module 'vue' {
   export interface GlobalComponents {
+    Accordion: typeof import('./components/ui/accordion/Accordion.vue')['default']
+    AccordionContent: typeof import('./components/ui/accordion/AccordionContent.vue')['default']
+    AccordionItem: typeof import('./components/ui/accordion/AccordionItem.vue')['default']
+    AccordionTrigger: typeof import('./components/ui/accordion/AccordionTrigger.vue')['default']
     Button: typeof import('./components/ui/button/Button.vue')['default']
-    README: typeof import('./components/README.md')['default']
+    Collapsible: typeof import('./components/ui/collapsible/Collapsible.vue')['default']
+    CollapsibleContent: typeof import('./components/ui/collapsible/CollapsibleContent.vue')['default']
+    CollapsibleTrigger: typeof import('./components/ui/collapsible/CollapsibleTrigger.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
-    TheButton: typeof import('./components/TheButton.vue')['default']
-    TheCheckbox: typeof import('./components/TheCheckbox.vue')['default']
+    ScrollArea: typeof import('./components/ui/scroll-area/ScrollArea.vue')['default']
+    ScrollBar: typeof import('./components/ui/scroll-area/ScrollBar.vue')['default']
     TheCounter: typeof import('./components/TheCounter.vue')['default']
     TheFooter: typeof import('./components/TheFooter.vue')['default']
     TheInput: typeof import('./components/TheInput.vue')['default']
-    TheRange: typeof import('./components/TheRange.vue')['default']
-    WithLabel: typeof import('./components/WithLabel.vue')['default']
   }
 }

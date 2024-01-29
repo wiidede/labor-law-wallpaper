@@ -5,7 +5,7 @@ const laws = Object.entries(lawsRaw).map<Law>(([name, raw]) => {
   let content = raw
   let link = ''
   if (raw.startsWith('http')) {
-    const match = raw.match(/^(http.*)\n/)
+    const match = raw.match(/^(http.*)$/m)
     if (match) {
       link = match[1]
       content = raw.substring(match[0].length)

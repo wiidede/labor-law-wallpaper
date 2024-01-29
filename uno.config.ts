@@ -14,6 +14,8 @@ export default defineConfig({
     {
       'animate-accordion-up': 'accordion-up',
       'animate-accordion-down': 'accordion-down',
+      'animate-collapsible-up': 'collapsible-up',
+      'animate-collapsible-down': 'collapsible-down',
     },
   ],
   content: {

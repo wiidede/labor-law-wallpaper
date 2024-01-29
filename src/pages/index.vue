@@ -5,17 +5,32 @@ const currentArticleIndex = ref(0)
 const currentLaw = computed(() => laws[currentLawIndex.value])
 const currentArticle = computed(() => currentLaw.value?.articles[currentArticleIndex.value])
 
-async function randomNextLaw() {
-  currentLawIndex.value = Math.floor(Math.random() * laws.length)
-  await nextTick()
-  currentArticleIndex.value = Math.floor(Math.random() * currentLaw.value.articles.length)
+const isShuffle = ref(false)
+const toggleShuffle = () => isShuffle.value = !isShuffle.value
+
+async function nextLaw() {
+  if (isShuffle.value) {
+    currentLawIndex.value = Math.floor(Math.random() * laws.length)
+    await nextTick()
+    currentArticleIndex.value = Math.floor(Math.random() * currentLaw.value.articles.length)
+  }
+  else {
+    const nextArticleIndex = currentArticleIndex.value + 1
+    if (nextArticleIndex >= currentLaw.value.articles.length) {
+      currentLawIndex.value = (currentLawIndex.value + 1) % laws.length
+      currentArticleIndex.value = 0
+    }
+    else {
+      currentArticleIndex.value = nextArticleIndex
+    }
+  }
 }
 
-const { pause, resume, isActive } = useIntervalFn(() => randomNextLaw(), 6000)
+const { pause, resume, isActive } = useIntervalFn(() => nextLaw(), 6000)
 
 function handleSkip() {
   isActive.value && resume()
-  randomNextLaw()
+  nextLaw()
 }
 
 function setIndex(lawIndex: number, articleIndex: number) {
@@ -23,10 +38,13 @@ function setIndex(lawIndex: number, articleIndex: number) {
   currentLawIndex.value = lawIndex
   currentArticleIndex.value = articleIndex
 }
+
+const lawVisible = ref(false)
+const lawsVisible = ref<string[]>([])
 </script>
 
 <template>
-  <div class="screen flex flex-col items-center justify-around bg-#DB3832 text-#FFFF54">
+  <div class="screen-size law-container flex flex-col items-center justify-around bg-#DB3832 text-#FFFF54">
     <img class="aspect-square w-67" src="/assets/images/guohui.png" alt="国徽">
     <h1 class="text-center text-5xl font-bold md:text-7xl">
       <template v-if="currentLaw?.name.startsWith('中华人民共和国')">
@@ -45,8 +63,11 @@ function setIndex(lawIndex: number, articleIndex: number) {
     <div />
   </div>
 
-  <div class="p4">
+  <div class="flex flex-col gap4 p4">
     <div class="flex gap4">
+      <Button variant="outline" size="icon" @click="toggleShuffle()">
+        <div :class="isShuffle ? 'i-carbon-shuffle' : 'i-carbon-sort-ascending'" />
+      </Button>
       <Button variant="outline" size="icon" @click="isActive ? pause() : resume()">
         <div :class="isActive ? 'i-carbon-pause' : 'i-carbon-play'" />
       </Button>
@@ -54,36 +75,51 @@ function setIndex(lawIndex: number, articleIndex: number) {
         <div class="i-carbon-skip-forward" />
       </Button>
     </div>
-    <div v-for="law, idx in laws" :key="idx">
-      <h2 class="my2 text-lg" :title="law.info">
-        {{ law.name }}
-        <a v-if="law.link" :href="law.link" target="_blank"><span class="ml-4 text-0.67em underline op-50">原文</span></a>
-      </h2>
-      <div class="flex flex-wrap gap2">
-        <template v-for="article, subIdx in law.articles" :key="subIdx">
-          <Button
-            :variant="currentLawIndex === idx && currentArticleIndex === subIdx ? 'default' : 'outline'"
-            size="sm"
-            :title="article.content"
-            :disabled="currentLawIndex === idx && currentArticleIndex === subIdx"
-            @click="setIndex(idx, subIdx)"
-          >
-            {{ subIdx + 1 }}
-          </Button>
-        </template>
-      </div>
-    </div>
 
+    <Collapsible v-model:open="lawVisible">
+      <CollapsibleTrigger>
+        <div class="flex items-center gap2 text-xl">
+          当前所有条文
+          <div class="i-carbon-chevron-right inline-block transition-transform duration-200" :class="{ 'rotate-90': lawVisible }" />
+        </div>
+      </CollapsibleTrigger>
+      <CollapsibleContent>
+        <Accordion v-model="lawsVisible" type="multiple" collapsible>
+          <template v-for="law, idx in laws" :key="idx">
+            <AccordionItem :value="String(idx)">
+              <AccordionTrigger>
+                <h2 class="text-lg" :title="law.info">
+                  {{ law.name }}
+                </h2>
+              </AccordionTrigger>
+              <AccordionContent>
+                <a v-if="law.link" :href="law.link" target="_blank" class="mb2 block"><span class="underline op-50">原文</span></a>
+                <div class="flex flex-wrap gap1">
+                  <template v-for="article, subIdx in law.articles" :key="subIdx">
+                    <Button
+                      :variant="currentLawIndex === idx && currentArticleIndex === subIdx ? 'default' : 'outline'"
+                      size="sm"
+                      :title="article.content"
+                      :disabled="currentLawIndex === idx && currentArticleIndex === subIdx"
+                      @click="setIndex(idx, subIdx)"
+                    >
+                      {{ subIdx + 1 }}
+                    </Button>
+                  </template>
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+          </template>
+        </Accordion>
+      </CollapsibleContent>
+    </Collapsible>
     <TheFooter />
   </div>
 </template>
 
 <style scoped>
-.screen {
-  width: 100vw;
-  height: 100vh;
-  width: 100dvw;
-  height: 100dvh;
+.law-container {
   font-family: '宋体', 'SimSun', serif;
+  visibility: hidden;
 }
 </style>
