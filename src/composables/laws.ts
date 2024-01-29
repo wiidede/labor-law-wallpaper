@@ -30,7 +30,7 @@ const laws = Object.entries(lawsRaw).map<Law>(([name, raw]) => {
     if (skip)
       skip = false
     else
-      articles.push({ chapter, article, content: content.substring(prevIndex, match.index).replaceAll(/\n+/gm, '\n').replaceAll(/\u3000/g, ''), index: 0 })
+      articles.push({ chapter, article, content: content.substring(prevIndex, match.index).replaceAll(/\n+/gm, '\n').replaceAll(/[^\S\n]/g, ''), index: 0 })
 
     prevIndex = regex.lastIndex
 
