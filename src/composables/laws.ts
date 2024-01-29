@@ -46,7 +46,7 @@ const laws = Object.entries(lawsRaw).map<Law>(([name, raw]) => {
   const info = articles.shift()?.content || ''
 
   articles.forEach((article, index) => {
-    article.index = index
+    article.index = index + 1
   })
 
   return {
