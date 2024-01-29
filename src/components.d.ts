@@ -12,6 +12,7 @@ declare module 'vue' {
     AccordionItem: typeof import('./components/ui/accordion/AccordionItem.vue')['default']
     AccordionTrigger: typeof import('./components/ui/accordion/AccordionTrigger.vue')['default']
     Button: typeof import('./components/ui/button/Button.vue')['default']
+    Checkbox: typeof import('./components/ui/checkbox/Checkbox.vue')['default']
     Collapsible: typeof import('./components/ui/collapsible/Collapsible.vue')['default']
     CollapsibleContent: typeof import('./components/ui/collapsible/CollapsibleContent.vue')['default']
     CollapsibleTrigger: typeof import('./components/ui/collapsible/CollapsibleTrigger.vue')['default']

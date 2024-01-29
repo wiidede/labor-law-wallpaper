@@ -41,6 +41,26 @@ function setIndex(lawIndex: number, articleIndex: number) {
 
 const lawVisible = ref(false)
 const lawsVisible = ref<string[]>([])
+
+const lawSelectedStorage = useLocalStorage('lawSelected', Object.fromEntries(laws.map<[string, string]>(law => [law.name, '0'.repeat(law.articles.length)])))
+const lawSelected = computed({
+  get: () => Object.fromEntries(Object.entries(lawSelectedStorage.value).map(([key, value]) => [key, value.split('').map(v => v === '1')])),
+  set: (value) => { lawSelectedStorage.value = Object.fromEntries(Object.entries(value).map(([key, value]) => [key, value.map(v => v ? '1' : '0').join('')])) },
+})
+
+const lawSelectedVisible = ref(false)
+const lawsSelectedVisible = ref<string[]>([])
+
+function setAllSelected(lawName: string, checked: boolean) {
+  const selectedValue = lawSelected.value
+  selectedValue[lawName] = Array.from({ length: selectedValue[lawName].length }, () => checked)
+  lawSelected.value = selectedValue
+}
+function setSelected(lawName: string, articleIndex: number, checked: boolean) {
+  const selectedValue = lawSelected.value
+  selectedValue[lawName][articleIndex] = checked
+  lawSelected.value = selectedValue
+}
 </script>
 
 <template>
@@ -64,7 +84,7 @@ const lawsVisible = ref<string[]>([])
   </div>
 
   <div class="flex flex-col gap4 p4">
-    <div class="flex gap4">
+    <div class="flex justify-center gap4">
       <Button variant="outline" size="icon" @click="toggleShuffle()">
         <div :class="isShuffle ? 'i-carbon-shuffle' : 'i-carbon-sort-ascending'" />
       </Button>
@@ -88,12 +108,18 @@ const lawsVisible = ref<string[]>([])
           <template v-for="law, idx in laws" :key="idx">
             <AccordionItem :value="String(idx)">
               <AccordionTrigger>
-                <h2 class="text-lg" :title="law.info">
-                  {{ law.name }}
-                </h2>
+                <div class="flex items-center">
+                  <h2 class="text-lg" :title="law.info">
+                    {{ law.name }}
+                  </h2>
+                  <Button variant="link" size="sm" class="!h-fit">
+                    <a v-if="law.link" :href="law.link" target="_blank" class="ml4 inline-block" @click.stop>
+                      <div>原文</div>
+                    </a>
+                  </Button>
+                </div>
               </AccordionTrigger>
               <AccordionContent>
-                <a v-if="law.link" :href="law.link" target="_blank" class="mb2 block"><span class="underline op-50">原文</span></a>
                 <div class="flex flex-wrap gap1">
                   <template v-for="article, subIdx in law.articles" :key="subIdx">
                     <Button
@@ -113,6 +139,66 @@ const lawsVisible = ref<string[]>([])
         </Accordion>
       </CollapsibleContent>
     </Collapsible>
+
+    <Collapsible v-model:open="lawSelectedVisible">
+      <CollapsibleTrigger>
+        <div class="flex items-center gap2 text-xl">
+          条文配置
+          <div class="i-carbon-chevron-right inline-block transition-transform duration-200" :class="{ 'rotate-90': lawVisible }" />
+        </div>
+      </CollapsibleTrigger>
+      <CollapsibleContent>
+        <Accordion v-model="lawsSelectedVisible" type="multiple">
+          <template v-for="law, idx in laws" :key="idx">
+            <AccordionItem :value="String(idx)">
+              <AccordionTrigger>
+                <div class="flex items-center">
+                  <Checkbox
+                    :id="`law-all-${idx}`"
+                    :checked="lawSelected[law.name].every(Boolean) ? true : lawSelected[law.name].every((c) => !c) ? false : 'indeterminate'"
+                    class="mr2"
+                    @update:checked="setAllSelected(law.name, $event)"
+                    @click.stop
+                  />
+                  <h2 class="text-lg" :title="law.info">
+                    {{ law.name }}
+                  </h2>
+                  <Button variant="link" size="sm" class="!h-fit">
+                    <a v-if="law.link" :href="law.link" target="_blank" class="ml4 inline-block" @click.stop>
+                      <div>原文</div>
+                    </a>
+                  </Button>
+                </div>
+              </AccordionTrigger>
+              <AccordionContent>
+                <div class="flex flex-wrap gap1">
+                  <div
+                    v-for="article, subIdx in law.articles"
+                    :key="subIdx"
+                    class="flex items-center gap-1px"
+                    :title="article.content"
+                  >
+                    <Checkbox
+                      :id="`law-${idx}-${subIdx}`"
+                      :checked="lawSelected[law.name][subIdx]"
+                      :disabled="currentLawIndex === idx && currentArticleIndex === subIdx"
+                      @update:checked="setSelected(law.name, subIdx, $event)"
+                    />
+                    <label
+                      :for="`law-${idx}-${subIdx}`"
+                      class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                    >
+                      {{ subIdx + 1 }}
+                    </label>
+                  </div>
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+          </template>
+        </Accordion>
+      </CollapsibleContent>
+    </Collapsible>
+
     <TheFooter />
   </div>
 </template>
@@ -120,6 +206,5 @@ const lawsVisible = ref<string[]>([])
 <style scoped>
 .law-container {
   font-family: '宋体', 'SimSun', serif;
-  visibility: hidden;
 }
 </style>
