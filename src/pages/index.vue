@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { Expand, ExternalLink, Minimize, Pause, Play, Shuffle, SkipForward, SortDesc } from 'lucide-vue-next'
+
 const laws = useLaws()
 
 const lawRef = ref<HTMLDivElement>()
@@ -148,6 +150,8 @@ function handleSkip() {
   nextLaw()
 }
 
+const { isFullscreen, toggle } = useFullscreen()
+
 function setIndex(lawIndex: number, articleIndex: number) {
   isActive.value && resume()
   currentLawIndex.value = lawIndex
@@ -189,13 +193,19 @@ const { idle } = useIdle(3 * 1000)
   <div class="flex flex-col gap4 p4">
     <div class="flex justify-center gap4">
       <Button variant="default" size="icon" @click="toggleShuffle()">
-        <div :class="isShuffle ? 'i-carbon-shuffle' : 'i-carbon-sort-ascending'" />
+        <Shuffle v-if="isShuffle" />
+        <SortDesc v-else />
       </Button>
       <Button variant="default" size="icon" @click="isActive ? pause() : resume()">
-        <div :class="isActive ? 'i-carbon-pause' : 'i-carbon-play'" />
+        <Pause v-if="isActive" />
+        <Play v-else />
       </Button>
       <Button variant="default" size="icon" @click="handleSkip()">
-        <div class="i-carbon-skip-forward" />
+        <SkipForward />
+      </Button>
+      <Button variant="default" size="icon" @click="toggle()">
+        <Minimize v-if="isFullscreen" />
+        <Expand v-else />
       </Button>
     </div>
 
@@ -390,7 +400,7 @@ const { idle } = useIdle(3 * 1000)
                     </h2>
                     <Button variant="link" size="sm" class="op67 !h-fit">
                       <a v-if="law.link" :href="law.link" target="_blank" class="inline-block">
-                        <div class="i-carbon-link" />
+                        <ExternalLink class="size-1em" />
                       </a>
                     </Button>
                   </div>
