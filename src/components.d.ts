@@ -29,8 +29,6 @@ declare module 'vue' {
     ScrollBar: typeof import('./components/ui/scroll-area/ScrollBar.vue')['default']
     Slider: typeof import('./components/ui/slider/Slider.vue')['default']
     Switch: typeof import('./components/ui/switch/Switch.vue')['default']
-    TheCounter: typeof import('./components/TheCounter.vue')['default']
     TheFooter: typeof import('./components/TheFooter.vue')['default']
-    TheInput: typeof import('./components/TheInput.vue')['default']
   }
 }
