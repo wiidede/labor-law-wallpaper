@@ -5,3 +5,9 @@ export const isWindows = (function () {
     return /windows|win32/i.test(navigator.userAgent)
   return false
 }())
+
+export const isMobile = (function () {
+  if (isClient)
+    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+  return false
+}())

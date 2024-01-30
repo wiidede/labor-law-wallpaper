@@ -5,82 +5,77 @@ const laws = useLaws()
 
 const lawRef = ref<HTMLDivElement>()
 
-const intervalTime = useLocalStorage('law-interval-time', 6)
+const intervalTime = useLocalStorage('law-interval-time', DEFAULT_CONF.intervalTime)
 const intervalTimeMs = computed(() => intervalTime.value * 1000)
 const intervalTimeModel = useElementToArray(intervalTimeMs)
 
 const guohuiSize = useStorage('law-guohui-size', useCssVar('--law-guohui-size'))
 if (!guohuiSize.value)
-  guohuiSize.value = '240px'
+  guohuiSize.value = DEFAULT_CONF.guohuiSize
 const guohuiSizeValue = useElementToArray(usePixelToNumber(guohuiSize))
 
 const nameSize = useStorage('law-name-size', useCssVar('--law-name-size'))
 if (!nameSize.value)
-  nameSize.value = '60px'
+  nameSize.value = DEFAULT_CONF.nameSize
 const nameSizeValue = useElementToArray(usePixelToNumber(nameSize))
 
 const articleSize = useStorage('law-article-size', useCssVar('--law-article-size'))
 if (!articleSize.value)
-  articleSize.value = '20px'
+  articleSize.value = DEFAULT_CONF.articleSize
 const articleSizeValue = useElementToArray(usePixelToNumber(articleSize))
 
 function resetSize() {
-  guohuiSize.value = '240px'
-  nameSize.value = '60px'
-  articleSize.value = '20px'
+  guohuiSize.value = DEFAULT_CONF.guohuiSize
+  nameSize.value = DEFAULT_CONF.nameSize
+  articleSize.value = DEFAULT_CONF.articleSize
 }
 
 const containerBg = useStorage('law-container-bg', useCssVar('--law-container-bg'))
 if (!containerBg.value)
-  containerBg.value = '#DB3832'
+  containerBg.value = DEFAULT_CONF.containerBg
 
 const containerColor = useStorage('law-container-color', useCssVar('--law-container-color'))
 if (!containerColor.value)
-  containerColor.value = '#FFFF54'
+  containerColor.value = DEFAULT_CONF.containerColor
 
 function resetColor() {
-  containerBg.value = '#DB3832'
-  containerColor.value = '#FFFF54'
+  containerBg.value = DEFAULT_CONF.containerBg
+  containerColor.value = DEFAULT_CONF.containerColor
 }
 
 const topMargin = useStorage('law-top-margin', useCssVar('--law-top-margin'))
 if (!topMargin.value)
-  topMargin.value = '0px'
+  topMargin.value = DEFAULT_CONF.topMargin
 const topMarginValue = useElementToArray(usePixelToNumber(topMargin))
 
 const centerTopMargin = useStorage('law-center-top-margin', useCssVar('--law-center-top-margin'))
 if (!centerTopMargin.value)
-  centerTopMargin.value = '0px'
+  centerTopMargin.value = DEFAULT_CONF.centerTopMargin
 const centerTopMarginValue = useElementToArray(usePixelToNumber(centerTopMargin))
 
 const centerBottomMargin = useStorage('law-center-bottom-margin', useCssVar('--law-center-bottom-margin'))
 if (!centerBottomMargin.value)
-  centerBottomMargin.value = '0px'
+  centerBottomMargin.value = DEFAULT_CONF.centerBottomMargin
 const centerBottomMarginValue = useElementToArray(usePixelToNumber(centerBottomMargin))
 
 const bottomMargin = useStorage('law-bottom-margin', useCssVar('--law-bottom-margin'))
 if (!bottomMargin.value)
-  bottomMargin.value = '0px'
+  bottomMargin.value = DEFAULT_CONF.bottomMargin
 const bottomMarginValue = useElementToArray(usePixelToNumber(bottomMargin))
 
-const bottomDoubleWeight = useStorage('law-bottom-double-weight', true)
+const bottomDoubleWeight = useStorage('law-bottom-double-weight', DEFAULT_CONF.bottomDoubleWeight)
 
-const nameWrap = useStorage('law-name-wrap', false)
+const nameWrap = useStorage('law-name-wrap', DEFAULT_CONF.nameWrap)
 
 function resetMargin() {
-  topMargin.value = '0px'
-  centerTopMargin.value = '0px'
-  centerBottomMargin.value = '0px'
-  bottomMargin.value = '0px'
-  bottomDoubleWeight.value = true
+  topMargin.value = DEFAULT_CONF.topMargin
+  centerTopMargin.value = DEFAULT_CONF.centerTopMargin
+  centerBottomMargin.value = DEFAULT_CONF.centerBottomMargin
+  bottomMargin.value = DEFAULT_CONF.centerBottomMargin
+  bottomDoubleWeight.value = DEFAULT_CONF.bottomDoubleWeight
 }
 
-const defaultLaw: Record<string, string | undefined> = {
-  中华人民共和国劳动法: '00010000000000000000000000000000000100000001000000000000000000000000000000000000000000000000000000000000000',
-  中华人民共和国劳动合同法: '00010010000000000000000001000010001001000000000000000000000000000000000000000000000000000000000000',
-  中华人民共和国劳动争议调解仲裁法: '000001000000000000000000000000000000000000000000000000',
-}
-const defaultLawStorage = Object.fromEntries(laws.map<[string, string]>(law => [law.name, defaultLaw[law.name] || '0'.repeat(law.articles.length)]))
+const defaultLawStorage = Object.fromEntries(laws.map<[string, string]>(law => [law.name, DEFAULT_LAW[law.name] || '0'.repeat(law.articles.length)]))
 
 const lawSelectionStorage = useLocalStorage('law-selection', defaultLawStorage)
 const storageKeys = Object.keys(lawSelectionStorage.value)
