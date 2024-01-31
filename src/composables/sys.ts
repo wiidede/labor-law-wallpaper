@@ -11,3 +11,7 @@ export const isMobile = (function () {
     return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
   return false
 }())
+
+const { idle } = useIdle(3 * 1000)
+
+export { idle as isIdle }

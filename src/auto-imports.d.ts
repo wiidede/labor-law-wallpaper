@@ -44,6 +44,7 @@ declare global {
   const injectLocal: typeof import('@vueuse/core')['injectLocal']
   const isDark: typeof import('./composables/dark')['isDark']
   const isDefined: typeof import('@vueuse/core')['isDefined']
+  const isIdle: typeof import('./composables/sys')['isIdle']
   const isMobile: typeof import('./composables/sys')['isMobile']
   const isProxy: typeof import('vue')['isProxy']
   const isReactive: typeof import('vue')['isReactive']
@@ -349,6 +350,7 @@ declare module 'vue' {
     readonly injectLocal: UnwrapRef<typeof import('@vueuse/core')['injectLocal']>
     readonly isDark: UnwrapRef<typeof import('./composables/dark')['isDark']>
     readonly isDefined: UnwrapRef<typeof import('@vueuse/core')['isDefined']>
+    readonly isIdle: UnwrapRef<typeof import('./composables/sys')['isIdle']>
     readonly isMobile: UnwrapRef<typeof import('./composables/sys')['isMobile']>
     readonly isProxy: UnwrapRef<typeof import('vue')['isProxy']>
     readonly isReactive: UnwrapRef<typeof import('vue')['isReactive']>
@@ -645,6 +647,7 @@ declare module '@vue/runtime-core' {
     readonly injectLocal: UnwrapRef<typeof import('@vueuse/core')['injectLocal']>
     readonly isDark: UnwrapRef<typeof import('./composables/dark')['isDark']>
     readonly isDefined: UnwrapRef<typeof import('@vueuse/core')['isDefined']>
+    readonly isIdle: UnwrapRef<typeof import('./composables/sys')['isIdle']>
     readonly isMobile: UnwrapRef<typeof import('./composables/sys')['isMobile']>
     readonly isProxy: UnwrapRef<typeof import('vue')['isProxy']>
     readonly isReactive: UnwrapRef<typeof import('vue')['isReactive']>

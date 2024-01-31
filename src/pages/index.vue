@@ -157,15 +157,13 @@ function getSpan(length: number, size: number, base: number) {
   const span = Math.max(1 + base, Math.ceil(length / size) + base)
   return `span ${span} / span ${span}`
 }
-
-const { idle } = useIdle(3 * 1000)
 </script>
 
 <template>
   <div
     ref="lawRef"
     class="screen-size law-container flex flex-col items-center justify-around bg-[--law-container-bg] text-[--law-container-color]"
-    :class="{ 'cursor-none': idle }"
+    :class="{ 'cursor-none': isIdle }"
   >
     <img class="mt-[--law-top-margin] aspect-square w-[--law-guohui-size]" src="https://wiidede.space/img/guohui.png" alt="国徽">
     <h1 class="mb-[--law-center-bottom-margin] mt-[--law-center-top-margin] text-center font-size-[--law-name-size] font-bold">
