@@ -165,7 +165,7 @@ function getSpan(length: number, size: number, base: number) {
     class="screen-size law-container flex flex-col items-center justify-around bg-[--law-container-bg] text-[--law-container-color]"
     :class="{ 'cursor-none': isIdle }"
   >
-    <img class="mt-[--law-top-margin] aspect-square w-[--law-guohui-size]" src="https://wiidede.space/img/guohui.png" alt="国徽">
+    <img class="mt-[--law-top-margin] aspect-square w-[--law-guohui-size]" src="/guohui.png" alt="国徽">
     <h1 class="mb-[--law-center-bottom-margin] mt-[--law-center-top-margin] text-center font-size-[--law-name-size] font-bold">
       <template v-if="currentLaw?.name.startsWith('中华人民共和国') && nameWrap">
         <span>中华人民共和国</span><div /><span>{{ currentLaw?.name.slice(7) }}</span>
