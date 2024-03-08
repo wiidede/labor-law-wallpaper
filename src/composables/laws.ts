@@ -1,6 +1,6 @@
 import type { Article, Law } from '~/types'
 
-const lawsRaw = import.meta.glob('/assets/laws/*.txt', { as: 'raw', eager: true })
+const lawsRaw = import.meta.glob<string>('/assets/laws/*.txt', { query: '?raw', import: 'default', eager: true })
 const laws = Object.entries(lawsRaw).map<Law>(([name, raw]) => {
   let content = raw
   let link = ''
