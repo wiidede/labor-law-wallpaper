@@ -17,14 +17,21 @@ const props = withDefaults(
     orientation: 'vertical',
   },
 )
+
+const scrollAreaViewport = ref<InstanceType<typeof ScrollAreaViewport>>()
+const elRef = computed(() => scrollAreaViewport.value?.viewportElement)
+const { isScrolling } = useScroll(elRef, {
+  behavior: 'smooth',
+  idle: 500,
+})
 </script>
 
 <template>
   <ScrollAreaRoot :type="type" :class="cn('relative overflow-hidden', props.class)">
-    <ScrollAreaViewport class="h-full w-full rounded-[inherit]">
+    <ScrollAreaViewport ref="scrollAreaViewport" class="h-full w-full rounded-[inherit]">
       <slot />
     </ScrollAreaViewport>
-    <ScrollBar />
+    <ScrollBar v-show="isScrolling" />
     <ScrollAreaCorner />
   </ScrollAreaRoot>
 </template>
