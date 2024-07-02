@@ -12,7 +12,7 @@ const laws = Object.entries(lawsRaw).map<Law>(([name, raw]) => {
     }
   }
 
-  const regex = /\s+(第[零一二三四五六七八九十百千万亿]+[条章])\s+/gm
+  const regex = /\s+(第[零一二三四五六七八九十百千万亿]+[条章])\s+/g
   let prevIndex = 0
   let chapter = ''
   let article = ''
@@ -30,7 +30,7 @@ const laws = Object.entries(lawsRaw).map<Law>(([name, raw]) => {
     if (skip)
       skip = false
     else
-      articles.push({ chapter, article, content: content.substring(prevIndex, match.index).replaceAll(/[^\S\n]/g, '').replaceAll(/\n+/gm, '\n'), index: 0 })
+      articles.push({ chapter, article, content: content.substring(prevIndex, match.index).replaceAll(/[^\S\n]/g, '').replaceAll(/\n+/g, '\n'), index: 0 })
 
     prevIndex = regex.lastIndex
 
