@@ -1,6 +1,6 @@
-import { h } from '@unocss/preset-mini/utils'
 import type { Preset } from 'unocss'
 import type { PresetMiniOptions, Theme } from 'unocss/preset-mini'
+import { h } from '@unocss/preset-mini/utils'
 
 export interface PresetShadcnOptions extends PresetMiniOptions {}
 

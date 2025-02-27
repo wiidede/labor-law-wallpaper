@@ -1,12 +1,13 @@
 <script setup lang="ts">
+import type { ScrollAreaRootProps } from 'radix-vue'
 import {
   ScrollAreaCorner,
   ScrollAreaRoot,
-  type ScrollAreaRootProps,
+
   ScrollAreaViewport,
 } from 'radix-vue'
-import ScrollBar from './ScrollBar.vue'
 import { cn } from '~/lib/utils'
+import ScrollBar from './ScrollBar.vue'
 
 const props = withDefaults(
   defineProps<

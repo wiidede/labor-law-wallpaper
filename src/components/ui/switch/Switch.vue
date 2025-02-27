@@ -1,8 +1,8 @@
 <script setup lang="ts">
+import type { SwitchRootEmits, SwitchRootProps } from 'radix-vue'
 import {
   SwitchRoot,
-  type SwitchRootEmits,
-  type SwitchRootProps,
+
   SwitchThumb,
   useForwardPropsEmits,
 } from 'radix-vue'

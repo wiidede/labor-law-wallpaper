@@ -1,6 +1,6 @@
-export function usePixelToNumber(pixel: Ref<string>) {
+export function usePixelToNumber(pixel: Ref<string | undefined>) {
   return computed({
-    get: () => Number.parseInt(pixel.value) || 0,
+    get: () => (pixel.value && Number.parseInt(pixel.value)) || 0,
     set: (v: number) => (pixel.value = `${v.toString()}px`),
   })
 }

@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { ScrollAreaScrollbar, type ScrollAreaScrollbarProps, ScrollAreaThumb } from 'radix-vue'
+import type { ScrollAreaScrollbarProps } from 'radix-vue'
+import { ScrollAreaScrollbar, ScrollAreaThumb } from 'radix-vue'
 import { cn } from '~/lib/utils'
 
 const props = withDefaults(defineProps<ScrollAreaScrollbarProps>(), {
